@@ -19,6 +19,10 @@ import (
 	"kubedb.dev/db-client-go/postgres"
 )
 
+const (
+	postgresResourceMemoryKey = "memory"
+)
+
 func PrimaryServiceDNS(db *dbapi.Postgres) string {
 	return fmt.Sprintf("%v.%v.svc", db.ServiceName(), db.Namespace)
 }
@@ -38,7 +42,7 @@ func GetPostgresClient(kbClient client.Client, db *dbapi.Postgres) (*postgres.Cl
 func GetPostgresDB(kbClient client.Client) (*dbapi.Postgres, error) {
 	ref := kmapi.ObjectReference{
 		Name:      "postgres",
-		Namespace: "monitoring",
+		Namespace: "demo",
 	}
 	gvk := schema.GroupVersionKind{
 		Version: "v1",
@@ -79,8 +83,12 @@ func GetTotalMemory(postgresClient *postgres.Client, db *dbapi.Postgres) (int64,
 		return 0, fmt.Errorf("postgres container not found")
 	}
 
-	if qv, exists := pgContainer.Resources.Requests["memory"]; exists {
+	if qv, exists := pgContainer.Resources.Requests[postgresResourceMemoryKey]; exists {
 		totalMemory += int64(qv.Value())
+	} else if qv, exists := pgContainer.Resources.Limits[postgresResourceMemoryKey]; exists {
+		totalMemory += int64(qv.Value())
+	} else {
+		return 0, fmt.Errorf("neither memory request nor limit found")
 	}
 
 	return totalMemory, nil

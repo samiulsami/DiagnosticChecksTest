@@ -1,34 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app-deployment
+  name: sami-pg-deployment
   labels:
-    app: my-app
+    app: pg-test-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: my-app
+      app: pg-test-app
   template:
     metadata:
       labels:
-        app: my-app
+        app: pg-test-app
     spec:
       serviceAccountName: super-admin
       containers:
-        - name: my-app-container
-          image: my-app-image:latest # Replace this with your actual image name and tag
-          imagePullPolicy: IfNotPresent
+        - name: sami-pg-container
+          image: 0.1.acdc.appscode.ninja/library/sami-pg:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080 # Change this based on your app's port
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-app-service
+  name: pg-test-app-service
 spec:
   selector:
-    app: my-app
+    app: pg-test-app
   ports:
     - protocol: TCP
       port: 80

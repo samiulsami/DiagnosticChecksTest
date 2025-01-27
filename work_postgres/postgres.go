@@ -66,7 +66,7 @@ func GetPostgresDB(kbClient client.Client) (*dbapi.Postgres, error) {
 	return db, nil
 }
 
-func GetTotalMemory(postgresClient *postgres.Client, db *dbapi.Postgres) (int64, error) {
+func GetTotalMemory(db *dbapi.Postgres) (int64, error) {
 	if db == nil {
 		return 0, fmt.Errorf("db is nil")
 	}

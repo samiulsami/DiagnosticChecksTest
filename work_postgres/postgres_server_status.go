@@ -2,9 +2,12 @@ package work_postgres
 
 import (
 	"encoding/json"
+	"fmt"
 
 	gohumanize "github.com/dustin/go-humanize"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/klog/v2"
+	"kubedb.dev/apimachinery/apis/kubedb"
 )
 
 func TestPostgresServerStatus() {
@@ -49,7 +52,7 @@ func TestCheckAvailableSharedBuffers() {
 		return
 	}
 
-	totalMemory, err := GetTotalMemory(pgClient, db)
+	totalMemory, err := GetTotalMemory(db)
 	if err != nil {
 		klog.Error(err, "failed to get total memory")
 		return
@@ -80,7 +83,7 @@ func TestCheckEffectiveCacheSize() {
 		return
 	}
 
-	totalMemory, err := GetTotalMemory(pgClient, db)
+	totalMemory, err := GetTotalMemory(db)
 	if err != nil {
 		klog.Error(err, "failed to get total memory")
 		return
@@ -105,9 +108,37 @@ func TestCheckEffectiveCacheSize() {
 }
 
 func TestCheckRequestMethods() {
-	_, _, pgClient, err := GetPostgresClientsAndDB()
+	_, db, _, err := GetPostgresClientsAndDB()
 	if err != nil {
 		klog.Error(err, "failed to get postgres clients and db")
 		return
 	}
+
+	if db == nil {
+		klog.Error("db is nil")
+		return
+	}
+
+	totalMemory := int64(0)
+	var pgContainer *corev1.Container
+	for _, v := range db.Spec.PodTemplate.Spec.Containers {
+		if v.Name == kubedb.PostgresContainerName {
+			pgContainer = &v
+			break
+		}
+	}
+
+	if pgContainer == nil {
+		return 0, fmt.Errorf("postgres container not found")
+	}
+
+	if qv, exists := pgContainer.Resources.Requests[postgresResourceMemoryKey]; exists {
+		totalMemory += int64(qv.Value())
+	}
+
+	memoryMethod := pgContainer.Resources.Requests.Memory()
+	cpuMethod := pgContainer.Resources.Requests.Cpu()
+
+	klog.Infof("MemoryMethod: %v", memoryMethod.Value())
+	klog.Infof("CPUMethod: %v", cpuMethod.Value())
 }

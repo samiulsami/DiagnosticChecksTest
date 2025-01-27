@@ -16,6 +16,7 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kubedb.dev/apimachinery/apis/kubedb"
 	dbapi "kubedb.dev/apimachinery/apis/kubedb/v1"
+	v1 "kubedb.dev/apimachinery/apis/kubedb/v1"
 	"kubedb.dev/db-client-go/postgres"
 )
 
@@ -108,4 +109,22 @@ func GetEffectiveCacheSize(postgresClient *postgres.Client) (string, error) {
 		return "", fmt.Errorf("failed to get effective cache size: %w", err)
 	}
 	return effectiveCacheSize, nil
+}
+
+func GetPostgresClientsAndDB() (client.Client, *v1.Postgres, *postgres.Client, error) {
+	kubeClient, err := utils.GetKBClient()
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to get kube client: %w", err)
+	}
+
+	db, err := GetPostgresDB(kubeClient)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to get postgres db: %w", err)
+	}
+
+	pgClient, err := GetPostgresClient(kubeClient, db)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to get postgres client: %w", err)
+	}
+	return kubeClient, db, pgClient, nil
 }

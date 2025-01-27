@@ -8,7 +8,7 @@ import (
 var PgCmdTest2 = &cobra.Command{
 	Use:   "pgTestAll",
 	Short: "This is a simple CLI application",
-	Long:  `Test postgres cmd2`,
+	Long:  `Test postgres all`,
 	Run: func(cmd *cobra.Command, args []string) {
 		klog.Info("Testing 'TestPostgresServerStatus()':\n")
 		TestPostgresServerStatus()
@@ -31,9 +31,19 @@ var PgCmdTest2 = &cobra.Command{
 var PgCmdTestSharedBuffers = &cobra.Command{
 	Use:   "pgTestSharedBuffers",
 	Short: "This is a simple CLI Application",
-	Long:  `Test postgres cmd`,
+	Long:  `Test postgres shared buffers`,
 	Run: func(cmd *cobra.Command, args []string) {
 		klog.Info("Testing `TestSharedBuffers()`:\n")
 		TestCheckAvailableSharedBuffers()
+	},
+}
+
+var PgCmdTestRequestMethods = &cobra.Command{
+	Use:   "pgTestRequestMethods",
+	Short: "This is a simple CLI Application",
+	Long:  `Test postgres request methods`,
+	Run: func(cmd *cobra.Command, args []string) {
+		klog.Info("Testing `TestSharedBuffers()`:\n")
+		TestCheckRequestMethods()
 	},
 }

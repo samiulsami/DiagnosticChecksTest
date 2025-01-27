@@ -4,26 +4,13 @@ import (
 	"encoding/json"
 
 	gohumanize "github.com/dustin/go-humanize"
-	utils "github.com/shn27/Test/utils"
 	"k8s.io/klog/v2"
 )
 
 func TestPostgresServerStatus() {
-	kubeClient, err := utils.GetKBClient()
+	_, _, pgClient, err := GetPostgresClientsAndDB()
 	if err != nil {
-		klog.Error(err, "failed to get kube client")
-		return
-	}
-
-	db, err := GetPostgresDB(kubeClient)
-	if err != nil {
-		klog.Error(err, "failed to get postgres db")
-		return
-	}
-
-	pgClient, err := GetPostgresClient(kubeClient, db)
-	if err != nil {
-		klog.Error(err, "failed to get postgres client")
+		klog.Error(err, "failed to get postgres clients and db")
 		return
 	}
 
@@ -39,21 +26,9 @@ func TestPostgresServerStatus() {
 }
 
 func TestClientFuncs() {
-	kubeClient, err := utils.GetKBClient()
+	_, _, pgClient, err := GetPostgresClientsAndDB()
 	if err != nil {
-		klog.Error(err, "failed to get kube client")
-		return
-	}
-
-	db, err := GetPostgresDB(kubeClient)
-	if err != nil {
-		klog.Error(err, "failed to get postgres db")
-		return
-	}
-
-	pgClient, err := GetPostgresClient(kubeClient, db)
-	if err != nil {
-		klog.Error(err, "failed to get postgres client")
+		klog.Error(err, "failed to get postgres clients and db")
 		return
 	}
 
@@ -68,21 +43,9 @@ func TestClientFuncs() {
 }
 
 func TestCheckAvailableSharedBuffers() {
-	kubeClient, err := utils.GetKBClient()
+	_, db, pgClient, err := GetPostgresClientsAndDB()
 	if err != nil {
-		klog.Error(err, "failed to get kube client")
-		return
-	}
-
-	db, err := GetPostgresDB(kubeClient)
-	if err != nil {
-		klog.Error(err, "failed to get postgres db")
-		return
-	}
-
-	pgClient, err := GetPostgresClient(kubeClient, db)
-	if err != nil {
-		klog.Error(err, "failed to get postgres client")
+		klog.Error(err, "failed to get postgres clients and db")
 		return
 	}
 
@@ -111,21 +74,9 @@ func TestCheckAvailableSharedBuffers() {
 }
 
 func TestCheckEffectiveCacheSize() {
-	kubeClient, err := utils.GetKBClient()
+	_, db, pgClient, err := GetPostgresClientsAndDB()
 	if err != nil {
-		klog.Error(err, "failed to get kube client")
-		return
-	}
-
-	db, err := GetPostgresDB(kubeClient)
-	if err != nil {
-		klog.Error(err, "failed to get postgres db")
-		return
-	}
-
-	pgClient, err := GetPostgresClient(kubeClient, db)
-	if err != nil {
-		klog.Error(err, "failed to get postgres client")
+		klog.Error(err, "failed to get postgres clients and db")
 		return
 	}
 
@@ -151,4 +102,12 @@ func TestCheckEffectiveCacheSize() {
 
 	percentage := float64(effectiveCacheSize) / float64(totalMemory)
 	klog.Infof("effective cache size percentage: %.2f%%\n", percentage*float64(100))
+}
+
+func TestCheckRequestMethods() {
+	_, _, pgClient, err := GetPostgresClientsAndDB()
+	if err != nil {
+		klog.Error(err, "failed to get postgres clients and db")
+		return
+	}
 }
